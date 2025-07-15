@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Utah Air Quality</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- d3 script -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/d3-geo.v2.min.js"></script>
+  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <script type="module" src="plot-geojson.js"></script>
+  <script type="module" src="piechart.js"></script>
+
+</head>
+
+<body>
+  <!-- <div id="chart-modal">
+    <div class="chart">
+      <h2>Bar Chart</h2>
+      <div id="barchart-container"></div>
+    </div>
+  </div> -->
+
+  <div id="tooltip">
+    <strong id="tooltip-text-label">Temp</strong>
+    <p id="tooltip-text-value">Avg PM 2.5:</p>
+    <div id="tooltip-chart-container">
+      <svg id="tooltip-chart-svg"></svg>
+    </div>
+  </div>
+  <div id="left-container">
+    <h3 id="left-container-header">About Utah's Air Quality</h3>
+    <div class="text-container">
+      <p>This visualization displays Utah's Pm2.5 pollutant amounts over the years. Each dot represents a Utah air quality station. Hovering over each dot will give a more in depth reprsentation of the data from that station. 
+        The bottom buttons will show the selected season for that year and hovering over the dots will show a heatmap representating each day's air quality. </p>
+      <p>Some quick background information is that PM2.5 stands for Particulate matter 2.5. This is a type of air pollution made up of particles that are 2.5 micrometers or less in diameter. Long exposure can be unhealthy since inhaling can cause inflamation and tissue damage.</p> 
+      <p>By looking through the yearly data we have seen some unique trends and events that have been visualized on this site!</p>
+      <p>Our first example is looking at 1999 you can see that there a lot less data points. This leads us to believe that over the last 20 years we have seen an increase in importance on air quality and climate trends.
+        This aligns with the growing climate issues and movements that are occuring around the world </p>
+      <p>Another example is during the spring of 2020. The air quality is best that its been over the years which matches with lockdowns for COVID19 going into effect. </p>
+      <p>Another trend that is shown is that winter tends to be the worst season in terms of pm2.5. This can be explained by the change in wind patterns can the inversion. This traps pollutants in the salt lake valley and surrounding areas causing
+        pollution to stay rather than being blown out.
+      </p>
+    </div>
+    <a href="https://www.youtube.com/watch?v=2Q7AsIfT658" target="_blank">Link to Demo Video</a>
+  </div>
+  <div id="main-container">
+    <h1 id="page-title">Utah Air Quality</h1>
+    <div id="map-container">
+      <svg id="utah-map-svg" width="500" height="600"></svg>
+    </div>
+    <div id="map-controls-container">
+      <label class="form-label" id="selected-year">Year</label>
+      <div id="slider-container">
+        <img id="animation-icon" src="/icons/PlayIcon.png" alt="Right Arrow Icon" />
+        <input type="range" class="form-range" min="1" max="12" step="1" id="customRange3" value="1" disabled>  
+      </div>
+      <!-- <div class="btn-group" role="group" aria-label="Season Buttons">
+        <button class="select-button" id="spring-button" value="spring">Spring</button>
+        <button class="select-button" id="summer-button" value="summer">Summer</button>
+        <button class="select-button" id="fall-button" value="fall">Fall</button>
+        <button class="select-button selected" id="winter-button" value="winter">Winter</button>
+      </div> -->
+      <div class="btn-group " role="group" aria-label="Season Buttons">
+        <button class="btn btn-primary" id="Spring" style="background-color: #a4d13a;">🌱</button>
+        <button class="btn btn-primary" id="Summer" style="background-color: #02ab82;">☀️</button>
+        <button class="btn btn-primary" id="Fall" style="background-color: #fc5e1d;" >🍁</button>
+        <button class="btn btn-primary" id="Winter" style="background-color: #2f77c3;">⛄</button>
+    </div>
+    </div>
+  </div>
+  <div id="side-modal-container">
+    <div id="button-container">
+      <img id="arrow-icon" src="/folder/icons/right-arrow.png" alt="Right Arrow Icon" />
+    </div>
+    <div id="sideModal">
+      <div id="modalContent">
+        <h3>Select the Year</h3>
+        <!-- <select class="dropdown-menu" aria-labelledby="yearDropdownButton">
+          <option value="" disabled selected hidden>Select a year</option>
+          <option class="dropdown-item" href="#" value="2023">2023</option>
+          <option class="dropdown-item" href="#" value="2022">2022</option>
+          <option class="dropdown-item" href="#" value="2021">2021</option>
+          <option class="dropdown-item" href="#" value="2020">2020</option>
+          <option class="dropdown-item" href="#" value="2019">2019</option>
+          <option class="dropdown-item" href="#" value="2018">2018</option>
+        </select> -->
+        <div class="dropdown">
+          <a 
+            class="btn custom-button dropdown-toggle" 
+            href="#" 
+            role="button" 
+            id="dropdownMenuButton" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+            Select a year
+          </a>
+        
+          <ul class="dropdown-menu scrollable-dropdown" aria-labelledby="dropdownMenuButton">
+            <li><a class="dropdown-item" href="#" data-value="2023">2023</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2022">2022</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2021">2021</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2020">2020</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2019">2019</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2018">2018</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2017">2017</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2016">2016</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2015">2015</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2014">2014</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2013">2013</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2012">2012</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2011">2011</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2010">2010</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2009">2009</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2008">2008</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2007">2007</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2006">2006</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2005">2005</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2004">2004</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2003">2003</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2002">2002</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2001">2001</a></li>
+            <li><a class="dropdown-item" href="#" data-value="2000">2000</a></li>
+            <li><a class="dropdown-item" href="#" data-value="1999">1999</a></li>
+          </ul>
+        </div>
+      </div>   
+    </div>
+      <!-- </div>
+    </div> -->
+  </div>
+  <script type="module" src="script.js"></script>
+  
+</body>
+
+</html>
